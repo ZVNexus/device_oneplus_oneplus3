@@ -34,7 +34,6 @@ TARGET_2ND_CPU_VARIANT := cortex-a53
 TARGET_NO_BOOTLOADER := true
 TARGET_NO_KERNEL := false
 
-BOARD_USES_GENERIC_AUDIO := true
 USE_CAMERA_STUB := true
 
 # Bluetooth
