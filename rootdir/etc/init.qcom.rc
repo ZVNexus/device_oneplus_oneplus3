@@ -68,6 +68,11 @@ on init
     chown root system /sys/fs/cgroup/memory/bg/tasks
     chmod 0660 /sys/fs/cgroup/memory/bg/tasks
 
+service loggy /vendor/bin/loggy.sh
+   class core
+   user root
+   oneshot
+
 on post-fs
     chmod 0755 /sys/kernel/debug/tracing
 
