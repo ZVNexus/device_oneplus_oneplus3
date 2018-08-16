@@ -121,6 +121,10 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/keylayout/gpio-keys.kl:$(TARGET_OUT_KEYLAYOUT)/qpnp_pon.kl \
     $(LOCAL_PATH)/keylayout/gpio-keys.kl:$(TARGET_OUT_KEYLAYOUT)/synaptics_dsx.kl
 
+# USB
+PRODUCT_PACKAGES += \
+    android.hardware.usb@1.0-service.basic
+
 # Vibrator
 PRODUCT_PACKAGES += \
     android.hardware.vibrator@1.0-impl \
