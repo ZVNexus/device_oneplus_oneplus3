@@ -126,7 +126,6 @@ TARGET_NO_RPC := true
 
 # Initialization
 TARGET_PLATFORM_DEVICE_BASE := /devices/soc/
-TARGET_INIT_VENDOR_LIB := libinit_msm
 
 # Peripheral Manager
 TARGET_PER_MGR_ENABLED := true
