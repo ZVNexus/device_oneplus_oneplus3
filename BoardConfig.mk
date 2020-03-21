@@ -91,6 +91,14 @@ BOARD_EGL_CFG := $(PLATFORM_PATH)/egl.cfg
 
 # Kernel
 BOARD_KERNEL_CMDLINE += \
+    ro \
+    root=/dev/dm-0 \
+    rootwait \
+    skip_initramfs \
+    init=/init \
+    dm=\"system none ro,0 1 android-verity /dev/sde20\"
+
+BOARD_KERNEL_CMDLINE += \
     console=ttyHSL0,115200,n8 \
     androidboot.console=ttyHSL0
 
