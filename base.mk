@@ -1,3 +1,5 @@
+PLATFORM_PATH := device/oneplus/oneplus3
+
 # define flag to determine the kernel
 TARGET_KERNEL_VERSION := $(shell ls kernel | grep "msm-*" | sed 's/msm-//')
 
@@ -56,21 +58,12 @@ BOARD_HAVE_QCOM_FM ?= true
 
 
 # Boot additions
-ifeq ($(strip $(TARGET_USES_NQ_NFC)),true)
-PRODUCT_BOOT_JARS += com.nxp.nfc.nq
-endif
 #Camera QC extends API
 #ifeq ($(strip $(TARGET_USES_QTIC_EXTENSION)),true)
 #PRODUCT_BOOT_JARS += com.qualcomm.qti.camera
 #endif
-ifneq ($(strip $(TARGET_DISABLE_PERF_OPTIMIATIONS)),true)
-# Preloading QPerformance jar to ensure faster perflocks in Boost Framework
-PRODUCT_BOOT_JARS += QPerformance
-# Preloading UxPerformance jar to ensure faster UX invoke in Boost Framework
-PRODUCT_BOOT_JARS += UxPerformance
-endif
 
-#skip boot jars check
+# Skip boot jars check.
 SKIP_BOOT_JARS_CHECK := true
 
 
@@ -237,7 +230,6 @@ ifeq ($(TARGET_USE_QTI_BT_STACK), true)
 BT += libbluetooth_qti
 endif
 BT += libbt-hidlclient
-BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/qcom/common
 
 #C2DColorConvert
 C2DCC := libc2dcolorconvert
@@ -1152,7 +1144,7 @@ endif
 
 # gps/location secuity configuration file
 PRODUCT_COPY_FILES += \
-    device/qcom/common/sec_config:$(TARGET_COPY_OUT_VENDOR)/etc/sec_config
+    $(LOCAL_PATH)/sec_config:$(TARGET_COPY_OUT_VENDOR)/etc/sec_config
 
 #copy codecs_xxx.xml to (TARGET_COPY_OUT_VENDOR)/etc/
 PRODUCT_COPY_FILES += \
@@ -1160,12 +1152,12 @@ PRODUCT_COPY_FILES += \
     frameworks/av/media/libstagefright/data/media_codecs_google_telephony.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs_google_telephony.xml \
     frameworks/av/media/libstagefright/data/media_codecs_google_video.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs_google_video.xml \
     frameworks/av/media/libstagefright/data/media_codecs_google_video_le.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs_google_video_le.xml \
-    device/qcom/common/media/media_profiles.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_profiles.xml \
-    device/qcom/common/media/media_profiles.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_profiles_V1_0.xml
+    $(LOCAL_PATH)/media/media_profiles.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_profiles.xml \
+    $(LOCAL_PATH)/media/media_profiles.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_profiles_V1_0.xml
 
 ifneq ($(TARGET_ENABLE_QC_AV_ENHANCEMENTS),true)
 PRODUCT_COPY_FILES += \
-    device/qcom/common/media/media_codecs.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs.xml
+    $(LOCAL_PATH)/media/media_codecs.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs.xml
 endif
 
 ifeq ($(strip $(TARGET_USES_NQ_NFC)),true)
@@ -1181,9 +1173,6 @@ ifneq ($(TARGET_NOT_SUPPORT_VULKAN),true)
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.vulkan.compute-0.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.vulkan.compute-0.xml
 endif
-
-# include additional build utilities
--include device/qcom/common/utils.mk
 
 # Copy the vulkan feature level file.
 # Targets listed in VULKAN_FEATURE_LEVEL_0_TARGETS_LIST supports only vulkan feature level 0.
@@ -1206,30 +1195,10 @@ endif
 endif
 
 ifneq ($(strip $(TARGET_USES_RRO)),true)
-# enable overlays to use our version of
+# Enable overlays to use our version of
 # source/resources etc.
-ifneq ($(strip $(TARGET_BOARD_AUTO)),true)
-DEVICE_PACKAGE_OVERLAYS += device/qcom/common/device/overlay
-PRODUCT_PACKAGE_OVERLAYS += device/qcom/common/product/overlay
-else
-DEVICE_PACKAGE_OVERLAYS += device/qcom/common/automotive/device/overlay
-PRODUCT_PACKAGE_OVERLAYS += device/qcom/common/automotive/product/overlay
-endif
-endif
-
-# Set up flags to determine the kernel version
-ifeq ($(TARGET_KERNEL_VERSION),)
-     TARGET_KERNEL_VERSION := 3.18
-endif
-ifneq ($(KERNEL_OVERRIDE),)
-     TARGET_KERNEL_VERSION := $(KERNEL_OVERRIDE)
-endif
-ifeq ($(wildcard kernel/msm-$(TARGET_KERNEL_VERSION)),)
-     KERNEL_TO_BUILD_ROOT_OFFSET := ../
-     TARGET_KERNEL_SOURCE := kernel
-else
-     KERNEL_TO_BUILD_ROOT_OFFSET := ../../
-     TARGET_KERNEL_SOURCE := kernel/msm-$(TARGET_KERNEL_VERSION)
+DEVICE_PACKAGE_OVERLAYS += $(PLATFORM_PATH)/device/overlay
+PRODUCT_PACKAGE_OVERLAYS += $(PLATFORM_PATH)/product/overlay
 endif
 
 #Enabling Ring Tones
@@ -1256,27 +1225,11 @@ endif
 PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
     ro.oem_unlock_supported=1
 
-ifeq ($(TARGET_USES_QCOM_BSP_ATEL),true)
-    PRODUCT_PROPERTY_OVERRIDES += persist.radio.multisim.config=dsds
-endif
-
 # VNDK-SP:
 PRODUCT_PACKAGES += \
     vndk-sp \
 
-# Temporary handling
-#
-# Include config.fs get only if legacy device/qcom/<target>/android_filesystem_config.h
-# does not exist as they are mutually exclusive.  Once all target's android_filesystem_config.h
-# have been removed, TARGET_FS_CONFIG_GEN should be made unconditional.
-DEVICE_CONFIG_DIR := $(dir $(firstword $(subst ]],, $(word 2, $(subst [[, ,$(_node_import_context))))))
-ifeq ($(wildcard $(DEVICE_CONFIG_DIR)/android_filesystem_config.h),)
-  TARGET_FS_CONFIG_GEN := device/qcom/common/config.fs
-else
-  $(warning **********)
-  $(warning TODO: Need to replace legacy $(DEVICE_CONFIG_DIR)android_filesystem_config.h with config.fs)
-  $(warning **********)
-endif
+TARGET_FS_CONFIG_GEN := device/oneplus/oneplus3/config.fs
 
 ifeq ($(TARGET_HAS_LOW_RAM),true)
     PRODUCT_PROPERTY_OVERRIDES += \
