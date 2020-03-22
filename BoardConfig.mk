@@ -14,6 +14,9 @@
 
 PLATFORM_PATH := device/oneplus/oneplus3
 
+# Assertions
+TARGET_OTA_ASSERT_DEVICE := OnePlus3,oneplus3,OnePlus3T,oneplus3t
+
 TARGET_BOARD_PLATFORM := msm8996
 
 TARGET_ARCH := arm64
