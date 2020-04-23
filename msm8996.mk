@@ -13,6 +13,7 @@
 # limitations under the License.
 
 $(call inherit-product, device/oneplus/oneplus3/base.mk)
+$(call inherit-product, vendor/oneplus/oneplus3/oneplus3-vendor.mk)
 
 # Overlays
 DEVICE_PACKAGE_OVERLAYS := \
@@ -252,6 +253,14 @@ PRODUCT_COPY_FILES += \
 # Logging
 PRODUCT_PACKAGES += \
     loggy.sh
+
+# QTI
+TARGET_COMMON_QTI_COMPONENTS := \
+    av \
+    bt \
+    perf \
+    telephony \
+    wfd
 
 ###################################################################################
 # This is the End of target.mk file.
